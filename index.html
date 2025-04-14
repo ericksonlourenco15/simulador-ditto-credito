@@ -1,15 +1,15 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <title>Simulador de Empréstimo Consignado Privado | Ditto Crédito</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f8f8f8;
       color: #000000;
-      max-width: 600px;
+      max-width: 100%;
       margin: 0 auto;
       padding: 20px;
     }
@@ -18,22 +18,25 @@
       margin-bottom: 30px;
     }
     header img {
-      max-width: 200px;
+      max-width: 180px;
+      width: 100%;
     }
     h2 {
       color: #5F9183;
       margin-top: 20px;
+      font-size: 1.5rem;
     }
     label {
       display: block;
       margin-top: 20px;
       font-weight: bold;
+      font-size: 1rem;
     }
     input {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
-      font-size: 16px;
+      font-size: 1rem;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
@@ -45,7 +48,7 @@
       color: white;
       border: none;
       border-radius: 5px;
-      font-size: 16px;
+      font-size: 1.1rem;
       cursor: pointer;
     }
     button:hover {
@@ -71,8 +74,42 @@
     footer {
       text-align: center;
       margin-top: 40px;
-      font-size: 14px;
+      font-size: 1rem;
       color: #888;
+    }
+
+    /* Media Queries para telas menores */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      h2 {
+        font-size: 1.3rem;
+      }
+      label {
+        font-size: 0.9rem;
+      }
+      input, button {
+        font-size: 1rem;
+      }
+      table th, table td {
+        padding: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header img {
+        max-width: 150px;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+      label {
+        font-size: 0.8rem;
+      }
+      input, button {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
@@ -139,20 +176,20 @@
       };
 
       let opcoesPermitidas = [];
-      if (mesesCarteira >= 25 && mesesCarteira <= 36) opcoesPermitidas = [6, 8, 10];
-      else if (mesesCarteira >= 37 && mesesCarteira <= 48) opcoesPermitidas = [6, 8, 10, 12];
+      if (mesesCarteira >= 25 && mesesCarteira <= 36) opcoesPermitidas = [6, 8, 10]; 
+      else if (mesesCarteira >= 37 && mesesCarteira <= 48) opcoesPermitidas = [6, 8, 10, 12]; 
       else if (mesesCarteira >= 49) opcoesPermitidas = [6, 8, 10, 12, 18, 24, 36];
 
-      let html = `<p><strong>Meses de carteira assinada:</strong> ${mesesCarteira} meses</p>`;
-      html += `<p><strong>Valor da Parcela:</strong> R$ ${parcela.toFixed(2)}</p>`;
-      html += `<table><tr><th>Parcelas</th><th>Valor Liberado (R$)</th></tr>`;
+      let html = <p><strong>Meses de carteira assinada:</strong> ${mesesCarteira} meses</p>;
+      html += <p><strong>Valor da Parcela:</strong> R$ ${parcela.toFixed(2)}</p>;
+      html += <table><tr><th>Parcelas</th><th>Valor Liberado (R$)</th></tr>;
 
       opcoesPermitidas.forEach(parcelaQtd => {
         const valor = (parcela / coeficientes[parcelaQtd]).toFixed(2);
-        html += `<tr><td>${parcelaQtd}x</td><td>R$ ${valor}</td></tr>`;
+        html += <tr><td>${parcelaQtd}x</td><td>R$ ${valor}</td></tr>;
       });
 
-      html += `</table>`;
+      html += </table>;
       resultado.innerHTML = html;
     }
   </script>
