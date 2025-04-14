@@ -139,8 +139,8 @@
       };
 
       let opcoesPermitidas = [];
-      if (mesesCarteira >= 25 && mesesCarteira <= 36) opcoesPermitidas = [6, 10];
-      else if (mesesCarteira >= 37 && mesesCarteira <= 48) opcoesPermitidas = [6, 10, 12];
+      if (mesesCarteira >= 25 && mesesCarteira <= 36) opcoesPermitidas = [6, 8, 10];
+      else if (mesesCarteira >= 37 && mesesCarteira <= 48) opcoesPermitidas = [6, 8, 10, 12];
       else if (mesesCarteira >= 49) opcoesPermitidas = [6, 8, 10, 12, 18, 24, 36];
 
       let html = `<p><strong>Meses de carteira assinada:</strong> ${mesesCarteira} meses</p>`;
