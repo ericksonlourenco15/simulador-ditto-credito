@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador de Empréstimo Consignado Privado | Ditto Crédito</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      color: #000000;
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    header img {
+      max-width: 180px;
+      width: 100%;
+    }
+    h2 {
+      color: #5F9183;
+      margin-top: 20px;
+      font-size: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      background-color: #5FB371;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #5F9183;
+    }
+    #resultado {
+      margin-top: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background-color: #5FB371;
+      color: white;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 1rem;
+      color: #888;
+    }
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      h2 {
+        font-size: 1.3rem;
+      }
+      label {
+        font-size: 0.9rem;
+      }
+      input, button {
+        font-size: 1rem;
+      }
+      table th, table td {
+        padding: 8px;
+      }
+    }
+    @media (max-width: 480px) {
+      header img {
+        max-width: 150px;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+      label {
+        font-size: 0.8rem;
+      }
+      input, button {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://dittocredito.printi.com.br/ditto/theme/images/logo-loja.png" alt="Logo Ditto Crédito">
+    <h2>Simulador de Empréstimo Consignado Privado</h2>
+  </header>
+
+  <label for="dataNascimento">Data de Nascimento:</label>
+  <input type="date" id="dataNascimento">
+
+  <label for="dataInicio">Data de início da carteira assinada:</label>
+  <input type="date" id="dataInicio">
+
+  <label for="margem">Margem Disponível (R$):</label>
+  <input type="number" id="margem" step="0.01" placeholder="Digite o valor da margem">
+
+  <button onclick="simular()">Calcular Empréstimo</button>
+
+  <div id="resultado"></div>
+
+  <footer>
+    © 2025 Ditto Crédito. Todos os direitos reservados.
+  </footer>
+
+  <script>
+    function calcularIdade(dataStr) {
+      const hoje = new Date();
+      const nascimento = new Date(dataStr);
+      let idade = hoje.getFullYear() - nascimento.getFullYear();
+      const m = hoje.getMonth() - nascimento.getMonth();
+      if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) idade--;
+      return idade;
+    }
+
+    function calcularMeses(dataInicioStr) {
+      const hoje = new Date();
+      const dataInicio = new Date(dataInicioStr);
+      const anos = hoje.getFullYear() - dataInicio.getFullYear();
+      const meses = hoje.getMonth() - dataInicio.getMonth();
+      return anos * 12 + meses;
+    }
+
+    function simular() {
+      const nascimento = document.getElementById('dataNascimento').value;
+      const dataInicio = document.getElementById('dataInicio').value;
+      const margem = parseFloat(document.getElementById('margem').value);
+      const resultado = document.getElementById('resultado');
+      resultado.innerHTML = "";
+
+      if (!nascimento) {
+        resultado.innerHTML = '<p style="color:red">Informe a data de nascimento.</p>';
+        return;
+      }
+
+      const idade = calcularIdade(nascimento);
+      if (idade < 21 || idade > 57) {
+        resultado.innerHTML = '<p style="color:red">A idade deve estar entre 21 e 57 anos para realizar a simulação.</p>';
+        return;
+      }
+
+      if (!dataInicio) {
+        resultado.innerHTML = '<p style="color:red">Informe a data de início da carteira assinada.</p>';
+        return;
+      }
+
+      const mesesCarteira = calcularMeses(dataInicio);
+      if (mesesCarteira < 25) {
+        resultado.innerHTML = '<p style="color:red">É necessário ter no mínimo 25 meses de carteira assinada para realizar a simulação.</p>';
+        return;
+      }
+
+      if (!margem || margem <= 0) {
+        resultado.innerHTML = '<p style="color:red">Informe uma margem válida.</p>';
+        return;
+      }
+
+      const parcela = margem / 2;
+      const coeficientes = {
+        6: 0.254924,
+        8: 0.200789,
+        10: 0.168517,
+        12: 0.147137,
+        18: 0.112052,
+        24: 0.095179,
+        36: 0.079633
+      };
+
+      let opcoesPermitidas = [];
+      if (mesesCarteira >= 25 && mesesCarteira <= 36) opcoesPermitidas = [6, 8, 10]; 
+      else if (mesesCarteira >= 37 && mesesCarteira <= 48) opcoesPermitidas = [6, 8, 10, 12]; 
+      else if (mesesCarteira >= 49) opcoesPermitidas = [6, 8, 10, 12, 18, 24, 36];
+
+      let html = `<p><strong>Idade:</strong> ${idade} anos</p>`;
+      html += `<p><strong>Meses de carteira assinada:</strong> ${mesesCarteira} meses</p>`;
+      html += `<p><strong>Valor da Parcela:</strong> R$ ${parcela.toFixed(2)}</p>`;
+      html += `<table><tr><th>Parcelas</th><th>Valor Liberado (R$)</th></tr>`;
+
+      opcoesPermitidas.forEach(parcelaQtd => {
+        const valor = (parcela / coeficientes[parcelaQtd]).toFixed(2);
+        html += `<tr><td>${parcelaQtd}x</td><td>R$ ${valor}</td></tr>`;
+      });
+
+      html += `</table>`;
+      resultado.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
