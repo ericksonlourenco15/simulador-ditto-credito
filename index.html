@@ -88,10 +88,10 @@
   <label for="dataNascimento">Data de Nascimento:</label>
   <input type="date" id="dataNascimento">
 
-  <label for="dataInicio">Data de início da carteira assinada:</label>
+  <label for="dataInicio">Data de início da carteira assinada (Disponível no app CTPS Digital):</label>
   <input type="date" id="dataInicio">
 
-  <label for="margem">Valor máximo de parcela (R$):</label>
+  <label for="margem">Valor máximo de parcela (R$) (Disponível no app CTPS Digital):</label>
   <input type="number" id="margem" step="0.01">
 
   <label for="tipoSimulacao">Tipo de simulação:</label>
@@ -214,7 +214,7 @@
         });
         html += `</table>`;
         if (!algumaOpcaoValida) {
-          resultado.innerHTML = `<p style=\"color:red\">Nenhuma opção disponível: o valor de contrato solicitado excede o valor máxximo de parcela de R$ ${(margem / 2).toFixed(2)} permitido.</p>`;
+          resultado.innerHTML = `<p style=\"color:red\">Nenhuma opção disponível: o valor de contrato solicitado excede o valor máximo de parcela de R$ ${(margem / 2).toFixed(2)} permitido.</p>`;
           return;
         }
       }
