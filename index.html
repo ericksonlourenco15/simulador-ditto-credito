@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -122,8 +123,8 @@
   <label for="dataInicio">Data de início da carteira assinada:</label>
   <input type="date" id="dataInicio">
 
-  <label for="margem">Margem Disponível (R$):</label>
-  <input type="number" id="margem" step="0.01" placeholder="Digite o valor da margem">
+  <label for="margem">Valor máximo de parcela (R$):</label>
+  <input type="number" id="margem" step="0.01" placeholder="Digite o valor máximo de parcela disponível no app ctps digital">
 
   <button onclick="simular()">Calcular Empréstimo</button>
 
@@ -187,13 +188,13 @@
 
       const parcela = margem / 2;
       const coeficientes = {
-        6: 0.254924,
-        8: 0.200789,
-        10: 0.168517,
-        12: 0.147137,
-        18: 0.112052,
-        24: 0.095179,
-        36: 0.079633
+        6: 0.264905,
+        8: 0.208688,
+        10: 0.175092,
+        12: 0.152844,
+        18: 0.116357,
+        24: 0.098813,
+        36: 0.082661
       };
 
       let opcoesPermitidas = [];
