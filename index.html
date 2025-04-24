@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -33,7 +32,7 @@
       font-weight: bold;
       font-size: 1rem;
     }
-    input {
+    input, select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -78,37 +77,6 @@
       font-size: 1rem;
       color: #888;
     }
-    @media (max-width: 768px) {
-      body {
-        padding: 10px;
-      }
-      h2 {
-        font-size: 1.3rem;
-      }
-      label {
-        font-size: 0.9rem;
-      }
-      input, button {
-        font-size: 1rem;
-      }
-      table th, table td {
-        padding: 8px;
-      }
-    }
-    @media (max-width: 480px) {
-      header img {
-        max-width: 150px;
-      }
-      h2 {
-        font-size: 1.2rem;
-      }
-      label {
-        font-size: 0.8rem;
-      }
-      input, button {
-        font-size: 0.9rem;
-      }
-    }
   </style>
 </head>
 <body>
@@ -124,7 +92,18 @@
   <input type="date" id="dataInicio">
 
   <label for="margem">Valor máximo de parcela (R$):</label>
-  <input type="number" id="margem" step="0.01" placeholder="Digite o valor máximo de parcela disponível no app ctps digital">
+  <input type="number" id="margem" step="0.01">
+
+  <label for="tipoSimulacao">Tipo de simulação:</label>
+  <select id="tipoSimulacao" onchange="document.getElementById('valorContratoGroup').style.display = this.value === 'contrato' ? 'block' : 'none';">
+    <option value="parcela">Por valor da parcela</option>
+    <option value="contrato">Por valor do contrato</option>
+  </select>
+
+  <div id="valorContratoGroup" style="display: none">
+    <label for="valorContrato">Valor do contrato desejado (R$):</label>
+    <input type="number" id="valorContrato" step="0.01">
+  </div>
 
   <button onclick="simular()">Calcular Empréstimo</button>
 
@@ -135,6 +114,24 @@
   </footer>
 
   <script>
+    const coeficientes = {
+      6: 0.264905,
+      8: 0.208688,
+      10: 0.175092,
+      12: 0.152844,
+      18: 0.116357,
+      24: 0.098813,
+      36: 0.082661
+    };
+
+    const regrasPorTempo = [
+      { min: 13, max: 24, parcelas: [6, 8], valorMin: 500, valorMax: 4000 },
+      { min: 25, max: 36, parcelas: [6, 8, 10], valorMin: 500, valorMax: 6000 },
+      { min: 37, max: 48, parcelas: [6, 8, 10, 12], valorMin: 500, valorMax: 8000 },
+      { min: 49, max: 72, parcelas: [6, 8, 10, 12, 18, 24], valorMin: 500, valorMax: 10000 },
+      { min: 73, max: 999, parcelas: [6, 8, 10, 12, 18, 24, 36], valorMin: 500, valorMax: 12000 },
+    ];
+
     function calcularIdade(dataStr) {
       const hoje = new Date();
       const nascimento = new Date(dataStr);
@@ -146,73 +143,81 @@
 
     function calcularMeses(dataInicioStr) {
       const hoje = new Date();
-      const dataInicio = new Date(dataInicioStr);
-      const anos = hoje.getFullYear() - dataInicio.getFullYear();
-      const meses = hoje.getMonth() - dataInicio.getMonth();
-      return anos * 12 + meses;
+      const inicio = new Date(dataInicioStr);
+      return (hoje.getFullYear() - inicio.getFullYear()) * 12 + hoje.getMonth() - inicio.getMonth();
     }
 
     function simular() {
       const nascimento = document.getElementById('dataNascimento').value;
       const dataInicio = document.getElementById('dataInicio').value;
       const margem = parseFloat(document.getElementById('margem').value);
+      const tipoSimulacao = document.getElementById('tipoSimulacao').value;
+      const valorContratoDesejado = parseFloat(document.getElementById('valorContrato').value);
       const resultado = document.getElementById('resultado');
       resultado.innerHTML = "";
 
-      if (!nascimento) {
-        resultado.innerHTML = '<p style="color:red">Informe a data de nascimento.</p>';
+      if (!nascimento || !dataInicio) {
+        resultado.innerHTML = '<p style="color:red">Preencha todas as datas.</p>';
         return;
       }
 
       const idade = calcularIdade(nascimento);
       if (idade < 21 || idade > 57) {
-        resultado.innerHTML = '<p style="color:red">A idade deve estar entre 21 e 57 anos para realizar a simulação.</p>';
+        resultado.innerHTML = '<p style="color:red">Idade deve estar entre 21 e 57 anos.</p>';
         return;
       }
 
-      if (!dataInicio) {
-        resultado.innerHTML = '<p style="color:red">Informe a data de início da carteira assinada.</p>';
+      const meses = calcularMeses(dataInicio);
+      if (meses < 13) {
+        resultado.innerHTML = '<p style="color:red">Tempo mínimo de empresa: 13 meses.</p>';
         return;
       }
 
-      const mesesCarteira = calcularMeses(dataInicio);
-      if (mesesCarteira < 25) {
-        resultado.innerHTML = '<p style="color:red">É necessário ter no mínimo 25 meses de carteira assinada para realizar a simulação.</p>';
+      const faixa = regrasPorTempo.find(f => meses >= f.min && meses <= f.max);
+      if (!faixa) {
+        resultado.innerHTML = '<p style="color:red">Sem regras para esse tempo de empresa.</p>';
         return;
       }
-
-      if (!margem || margem <= 0) {
-        resultado.innerHTML = '<p style="color:red">Informe uma margem válida.</p>';
-        return;
-      }
-
-      const parcela = margem / 2;
-      const coeficientes = {
-        6: 0.264905,
-        8: 0.208688,
-        10: 0.175092,
-        12: 0.152844,
-        18: 0.116357,
-        24: 0.098813,
-        36: 0.082661
-      };
-
-      let opcoesPermitidas = [];
-      if (mesesCarteira >= 25 && mesesCarteira <= 36) opcoesPermitidas = [6, 8, 10]; 
-      else if (mesesCarteira >= 37 && mesesCarteira <= 48) opcoesPermitidas = [6, 8, 10, 12]; 
-      else if (mesesCarteira >= 49) opcoesPermitidas = [6, 8, 10, 12, 18, 24, 36];
 
       let html = `<p><strong>Idade:</strong> ${idade} anos</p>`;
-      html += `<p><strong>Meses de carteira assinada:</strong> ${mesesCarteira} meses</p>`;
-      html += `<p><strong>Valor da Parcela:</strong> R$ ${parcela.toFixed(2)}</p>`;
-      html += `<table><tr><th>Parcelas</th><th>Valor Liberado (R$)</th></tr>`;
+      html += `<p><strong>Tempo de carteira:</strong> ${meses} meses</p>`;
 
-      opcoesPermitidas.forEach(parcelaQtd => {
-        const valor = (parcela / coeficientes[parcelaQtd]).toFixed(2);
-        html += `<tr><td>${parcelaQtd}x</td><td>R$ ${valor}</td></tr>`;
-      });
-
-      html += `</table>`;
+      if (tipoSimulacao === "parcela") {
+        if (!margem || margem <= 0) {
+          resultado.innerHTML = '<p style="color:red">Informe a margem disponível.</p>';
+          return;
+        }
+        const valorParcela = margem / 2;
+        html += `<p><strong>Parcela máxima:</strong> R$ ${valorParcela.toFixed(2)}</p>`;
+        html += `<table><tr><th>Parcelas</th><th>Valor liberado</th></tr>`;
+        faixa.parcelas.forEach(p => {
+          const valor = (valorParcela / coeficientes[p]);
+          if (valor >= faixa.valorMin && valor <= faixa.valorMax) {
+            html += `<tr><td>${p}x</td><td>R$ ${valor.toFixed(2)}</td></tr>`;
+          }
+        });
+        html += `</table>`;
+      } else {
+        if (!valorContratoDesejado || valorContratoDesejado < faixa.valorMin || valorContratoDesejado > faixa.valorMax) {
+          resultado.innerHTML = `<p style="color:red">Valor deve estar entre R$ ${faixa.valorMin.toFixed(2)} e R$ ${faixa.valorMax.toFixed(2)} para essa faixa.</p>`;
+          return;
+        }
+        html += `<p><strong>Valor contratado:</strong> R$ ${valorContratoDesejado.toFixed(2)}</p>`;
+        html += `<table><tr><th>Parcelas</th><th>Parcela mensal</th></tr>`;
+        let algumaOpcaoValida = false;
+        faixa.parcelas.forEach(p => {
+          const parcela = valorContratoDesejado * coeficientes[p];
+          if (parcela <= margem / 2) {
+            html += `<tr><td>${p}x</td><td>R$ ${parcela.toFixed(2)}</td></tr>`;
+            algumaOpcaoValida = true;
+          }
+        });
+        html += `</table>`;
+        if (!algumaOpcaoValida) {
+          resultado.innerHTML = `<p style=\"color:red\">Nenhuma opção disponível: o valor de contrato solicitado excede o valor máxximo de parcela de R$ ${(margem / 2).toFixed(2)} permitido.</p>`;
+          return;
+        }
+      }
       resultado.innerHTML = html;
     }
   </script>
