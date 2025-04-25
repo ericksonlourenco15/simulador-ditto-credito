@@ -100,10 +100,10 @@ function abrirFormularioProposta(valor, parcelas, valorParcela) {
   </select>
 
   <label for="dataNascimento">Data de Nascimento:</label>
-  <input type="text" id="dataNascimento">
+  <input type="date" id="dataNascimento">
 
   <label for="dataInicio">Data de início da carteira assinada:</label>
-  <input type="text" id="dataInicio">
+  <input type="date" id="dataInicio">
 
   <label for="margem">Valor máximo de parcela (R$):</label>
   <input type="number" id="margem" step="0.01">
@@ -125,8 +125,8 @@ function abrirFormularioProposta(valor, parcelas, valorParcela) {
 
 <script>
 function simular() {
-  const nascimento = document.getElementById('dataNascimento').value;
-  const dataInicio = document.getElementById('dataInicio').value;
+  const nascimento = document.getElementById('Nascimento').value;
+  const Inicio = document.getElementById('Inicio').value;
   const margem = parseFloat(document.getElementById('margem').value);
   const tipoSimulacao = document.getElementById('tipoSimulacao').value;
   const valorContrato = parseFloat(document.getElementById('valorContrato').value);
@@ -134,7 +134,7 @@ function simular() {
   const resultado = document.getElementById('resultado');
   resultado.innerHTML = '';
 
-  if (!nascimento || !dataInicio || !margem || (tipoSimulacao === 'contrato' && !valorContrato)) {
+  if (!nascimento || !Inicio || !margem || (tipoSimulacao === 'contrato' && !valorContrato)) {
     resultado.innerHTML = '<p style="color:red">Preencha todos os campos obrigatórios.</p>';
     return;
   }
@@ -243,7 +243,7 @@ function simular() {
     <label for="celularCliente">Celular do cliente</label>
     <input type="text" id="celularCliente">
     <label for="dataNascimentoCliente">Data de nascimento do cliente</label>
-    <input type="text" id="dataNascimentoCliente">
+    <input type="date" id="dataNascimentoCliente">
     <label for="tipoDocumento">Tipo de documento</label>
     <select id="tipoDocumento">
       <option value="RG">RG</option>
@@ -254,7 +254,7 @@ function simular() {
     <label for="orgaoEmissor">Órgão Emissor</label>
     <input type="text" id="orgaoEmissor">
     <label for="dataEmissao">Data de emissão</label>
-    <input type="text" id="dataEmissao">
+    <input type="date" id="dataEmissao">
     <label for="uf">UF</label>
     <select id="uf">
       <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
@@ -364,7 +364,7 @@ $(document).ready(function() {
   $('#celularConsultor, #celularCliente').mask('(00) 00000-0000');
   $('#cep').mask('00000-000');
   $('#agencia').mask('0000');
-  $('#conta').mask('00000000');
+  $('#conta').mask('00000000000000');
   $('#digito').mask('0');
 
   function validarCampos() {
