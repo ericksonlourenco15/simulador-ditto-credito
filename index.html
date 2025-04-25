@@ -1,225 +1,106 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Simulador de Empréstimo Consignado Privado | Ditto Crédito</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f8f8f8;
-      color: #000000;
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    header img {
-      max-width: 180px;
-      width: 100%;
-    }
-    h2 {
-      color: #5F9183;
-      margin-top: 20px;
-      font-size: 1.5rem;
-    }
-    label {
-      display: block;
-      margin-top: 20px;
-      font-weight: bold;
-      font-size: 1rem;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      margin-top: 20px;
-      padding: 12px;
-      width: 100%;
-      background-color: #5FB371;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 1.1rem;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #5F9183;
-    }
-    #resultado {
-      margin-top: 30px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    th, td {
-      padding: 12px;
-      border: 1px solid #ccc;
-      text-align: center;
-    }
-    th {
-      background-color: #5FB371;
-      color: white;
-    }
-    footer {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 1rem;
-      color: #888;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <img src="https://dittocredito.printi.com.br/ditto/theme/images/logo-loja.png" alt="Logo Ditto Crédito">
-    <h2>Simulador de Empréstimo Consignado Privado</h2>
-  </header>
+<script>
+  const coeficientes = {
+    6: 0.264905,
+    8: 0.208688,
+    10: 0.175092,
+    12: 0.152844,
+    18: 0.116357,
+    24: 0.098813,
+    36: 0.082661
+  };
 
-  <label for="dataNascimento">Data de Nascimento:</label>
-  <input type="date" id="dataNascimento">
+  const regrasPorTempo = [
+    { min: 13, max: 24, parcelas: [6, 8], valorMin: 500, valorMax: 4000 },
+    { min: 25, max: 36, parcelas: [6, 8, 10], valorMin: 500, valorMax: 6000 },
+    { min: 37, max: 48, parcelas: [6, 8, 10, 12], valorMin: 500, valorMax: 8000 },
+    { min: 49, max: 72, parcelas: [6, 8, 10, 12, 18, 24], valorMin: 500, valorMax: 10000 },
+    { min: 73, max: 999, parcelas: [6, 8, 10, 12, 18, 24, 36], valorMin: 500, valorMax: 12000 }
+  ];
 
-  <label for="dataInicio">Data de início da carteira assinada (Disponível no app CTPS Digital):</label>
-  <input type="date" id="dataInicio">
+  function simular() {
+    const nascimento = document.getElementById('dataNascimento').value;
+    const dataInicio = document.getElementById('dataInicio').value;
+    const margem = parseFloat(document.getElementById('margem').value);
+    const tipoSimulacao = document.getElementById('tipoSimulacao').value;
+    const valorContratoDesejado = parseFloat(document.getElementById('valorContrato').value);
+    const resultado = document.getElementById('resultado');
+    resultado.innerHTML = "";
 
-  <label for="margem">Valor máximo de parcela (R$) (Disponível no app CTPS Digital):</label>
-  <input type="number" id="margem" step="0.01">
-
-  <label for="tipoSimulacao">Tipo de simulação:</label>
-  <select id="tipoSimulacao" onchange="document.getElementById('valorContratoGroup').style.display = this.value === 'contrato' ? 'block' : 'none';">
-    <option value="parcela">Por valor da parcela</option>
-    <option value="contrato">Por valor do contrato</option>
-  </select>
-
-  <div id="valorContratoGroup" style="display: none">
-    <label for="valorContrato">Valor do contrato desejado (R$):</label>
-    <input type="number" id="valorContrato" step="0.01">
-  </div>
-
-  <button onclick="simular()">Calcular Empréstimo</button>
-
-  <div id="resultado"></div>
-
-  <footer>
-    © 2025 Ditto Crédito. Todos os direitos reservados.
-  </footer>
-
-  <script>
-    const coeficientes = {
-      6: 0.264905,
-      8: 0.208688,
-      10: 0.175092,
-      12: 0.152844,
-      18: 0.116357,
-      24: 0.098813,
-      36: 0.082661
-    };
-
-    const regrasPorTempo = [
-      { min: 13, max: 24, parcelas: [6, 8], valorMin: 500, valorMax: 4000 },
-      { min: 25, max: 36, parcelas: [6, 8, 10], valorMin: 500, valorMax: 6000 },
-      { min: 37, max: 48, parcelas: [6, 8, 10, 12], valorMin: 500, valorMax: 8000 },
-      { min: 49, max: 72, parcelas: [6, 8, 10, 12, 18, 24], valorMin: 500, valorMax: 10000 },
-      { min: 73, max: 999, parcelas: [6, 8, 10, 12, 18, 24, 36], valorMin: 500, valorMax: 12000 },
-    ];
-
-    function calcularIdade(dataStr) {
-      const hoje = new Date();
-      const nascimento = new Date(dataStr);
-      let idade = hoje.getFullYear() - nascimento.getFullYear();
-      const m = hoje.getMonth() - nascimento.getMonth();
-      if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) idade--;
-      return idade;
+    const sexo = document.getElementById('sexo').value;
+    const idade = calcularIdade(nascimento);
+    const idadeMaxima = sexo === 'masculino' ? 62 : 57;
+    if (idade < 21 || idade > idadeMaxima) {
+      resultado.innerHTML = `<p style='color:red'>Idade deve estar entre 21 e ${idadeMaxima} anos para o sexo ${sexo}.</p>`;
+      return;
     }
 
-    function calcularMeses(dataInicioStr) {
-      const hoje = new Date();
-      const inicio = new Date(dataInicioStr);
-      return (hoje.getFullYear() - inicio.getFullYear()) * 12 + hoje.getMonth() - inicio.getMonth();
+    const meses = calcularMeses(dataInicio);
+    if (meses < 13) {
+      resultado.innerHTML = '<p style="color:red">Tempo mínimo de empresa: 13 meses.</p>';
+      return;
     }
 
-    function simular() {
-      const nascimento = document.getElementById('dataNascimento').value;
-      const dataInicio = document.getElementById('dataInicio').value;
-      const margem = parseFloat(document.getElementById('margem').value);
-      const tipoSimulacao = document.getElementById('tipoSimulacao').value;
-      const valorContratoDesejado = parseFloat(document.getElementById('valorContrato').value);
-      const resultado = document.getElementById('resultado');
-      resultado.innerHTML = "";
+    const faixa = regrasPorTempo.find(f => meses >= f.min && meses <= f.max);
+    if (!faixa) {
+      resultado.innerHTML = '<p style="color:red">Sem regras para esse tempo de empresa.</p>';
+      return;
+    }
 
-      if (!nascimento || !dataInicio) {
-        resultado.innerHTML = '<p style="color:red">Preencha todas as datas.</p>';
+    let html = `<p><strong>Idade:</strong> ${idade} anos</p>`;
+    html += `<p><strong>Tempo de carteira:</strong> ${meses} meses</p>`;
+
+    if (tipoSimulacao === "parcela") {
+      if (!margem || margem <= 0) {
+        resultado.innerHTML = '<p style="color:red">Informe a margem disponível.</p>';
         return;
       }
-
-      const idade = calcularIdade(nascimento);
-      if (idade < 21 || idade > 57) {
-        resultado.innerHTML = '<p style="color:red">Idade deve estar entre 21 e 57 anos.</p>';
-        return;
-      }
-
-      const meses = calcularMeses(dataInicio);
-      if (meses < 13) {
-        resultado.innerHTML = '<p style="color:red">Tempo mínimo de empresa: 13 meses.</p>';
-        return;
-      }
-
-      const faixa = regrasPorTempo.find(f => meses >= f.min && meses <= f.max);
-      if (!faixa) {
-        resultado.innerHTML = '<p style="color:red">Sem regras para esse tempo de empresa.</p>';
-        return;
-      }
-
-      let html = `<p><strong>Idade:</strong> ${idade} anos</p>`;
-      html += `<p><strong>Tempo de carteira:</strong> ${meses} meses</p>`;
-
-      if (tipoSimulacao === "parcela") {
-        if (!margem || margem <= 0) {
-          resultado.innerHTML = '<p style="color:red">Informe a margem disponível.</p>';
-          return;
+      const valorParcela = margem / 2;
+      html += `<p><strong>Parcela máxima:</strong> R$ ${valorParcela.toFixed(2)}</p>`;
+      html += `<table><tr><th>Parcelas</th><th>Valor liberado</th><th>Ação</th></tr>`;
+      faixa.parcelas.forEach(p => {
+        const valor = (valorParcela / coeficientes[p]);
+        if (valor >= faixa.valorMin && valor <= faixa.valorMax) {
+          html += `<tr><td>${p}x</td><td>R$ ${valor.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valor}, ${p}, ${valorParcela})'>Escolher</button></td></tr>`;
         }
-        const valorParcela = margem / 2;
-        html += `<p><strong>Parcela máxima:</strong> R$ ${valorParcela.toFixed(2)}</p>`;
-        html += `<table><tr><th>Parcelas</th><th>Valor liberado</th></tr>`;
-        faixa.parcelas.forEach(p => {
-          const valor = (valorParcela / coeficientes[p]);
-          if (valor >= faixa.valorMin && valor <= faixa.valorMax) {
-            html += `<tr><td>${p}x</td><td>R$ ${valor.toFixed(2)}</td></tr>`;
-          }
-        });
-        html += `</table>`;
-      } else {
-        if (!valorContratoDesejado || valorContratoDesejado < faixa.valorMin || valorContratoDesejado > faixa.valorMax) {
-          resultado.innerHTML = `<p style="color:red">Valor deve estar entre R$ ${faixa.valorMin.toFixed(2)} e R$ ${faixa.valorMax.toFixed(2)} para essa faixa.</p>`;
-          return;
-        }
-        html += `<p><strong>Valor contratado:</strong> R$ ${valorContratoDesejado.toFixed(2)}</p>`;
-        html += `<table><tr><th>Parcelas</th><th>Parcela mensal</th></tr>`;
-        let algumaOpcaoValida = false;
-        faixa.parcelas.forEach(p => {
-          const parcela = valorContratoDesejado * coeficientes[p];
-          if (parcela <= margem / 2) {
-            html += `<tr><td>${p}x</td><td>R$ ${parcela.toFixed(2)}</td></tr>`;
-            algumaOpcaoValida = true;
-          }
-        });
-        html += `</table>`;
-        if (!algumaOpcaoValida) {
-          resultado.innerHTML = `<p style=\"color:red\">Nenhuma opção disponível: o valor de contrato solicitado excede o valor máximo de parcela de R$ ${(margem / 2).toFixed(2)} permitido.</p>`;
-          return;
-        }
+      });
+      html += `</table>`;
+    } else {
+      if (!valorContratoDesejado || valorContratoDesejado < faixa.valorMin || valorContratoDesejado > faixa.valorMax) {
+        resultado.innerHTML = `<p style="color:red">Valor deve estar entre R$ ${faixa.valorMin.toFixed(2)} e R$ ${faixa.valorMax.toFixed(2)} para essa faixa.</p>`;
+        return;
       }
-      resultado.innerHTML = html;
+      html += `<p><strong>Valor contratado:</strong> R$ ${valorContratoDesejado.toFixed(2)}</p>`;
+      html += `<table><tr><th>Parcelas</th><th>Parcela mensal</th><th>Ação</th></tr>`;
+      let algumaOpcaoValida = false;
+      faixa.parcelas.forEach(p => {
+        const parcela = valorContratoDesejado * coeficientes[p];
+        if (parcela <= margem / 2) {
+          html += `<tr><td>${p}x</td><td>R$ ${parcela.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valorContratoDesejado}, ${p}, ${parcela})'>Escolher</button></td></tr>`;
+          algumaOpcaoValida = true;
+        }
+      });
+      html += `</table>`;
+      if (!algumaOpcaoValida) {
+        resultado.innerHTML = `<p style="color:red">Nenhuma opção disponível: o valor da parcela excede o limite de R$ ${(margem / 2).toFixed(2)} permitido.</p>`;
+        return;
+      }
     }
-  </script>
-</body>
-</html>
+    resultado.innerHTML = html;
+  }
+
+  function calcularIdade(dataStr) {
+    const hoje = new Date();
+    const nascimento = new Date(dataStr);
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const m = hoje.getMonth() - nascimento.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) idade--;
+    return idade;
+  }
+
+  function calcularMeses(dataInicioStr) {
+    const hoje = new Date();
+    const inicio = new Date(dataInicioStr);
+    return (hoje.getFullYear() - inicio.getFullYear()) * 12 + hoje.getMonth() - inicio.getMonth();
+  }
+</script>
