@@ -91,7 +91,7 @@ function abrirFormularioProposta(valor, parcelas, valorParcela) {
   </style>
 </head>
 <body>
-  <h2>Simulador de Empréstimo Consignado Privado - Ditto Crédito*</h2>
+  <h2>Simulador de Empréstimo Consignado Privado - Ditto Crédito**</h2>
 
   <label for="sexo">Sexo:</label>
   <select id="sexo">
@@ -125,8 +125,8 @@ function abrirFormularioProposta(valor, parcelas, valorParcela) {
 
 <script>
 function simular() {
-  const nascimento = document.getElementById('Nascimento').value;
-  const Inicio = document.getElementById('Inicio').value;
+  const nascimento = document.getElementById('dataNascimento').value;
+  const dataInicio = document.getElementById('dataInicio').value;
   const margem = parseFloat(document.getElementById('margem').value);
   const tipoSimulacao = document.getElementById('tipoSimulacao').value;
   const valorContrato = parseFloat(document.getElementById('valorContrato').value);
@@ -134,7 +134,7 @@ function simular() {
   const resultado = document.getElementById('resultado');
   resultado.innerHTML = '';
 
-  if (!nascimento || !Inicio || !margem || (tipoSimulacao === 'contrato' && !valorContrato)) {
+  if (!nascimento || !dataInicio || !margem || (tipoSimulacao === 'contrato' && !valorContrato)) {
     resultado.innerHTML = '<p style="color:red">Preencha todos os campos obrigatórios.</p>';
     return;
   }
@@ -364,7 +364,7 @@ $(document).ready(function() {
   $('#celularConsultor, #celularCliente').mask('(00) 00000-0000');
   $('#cep').mask('00000-000');
   $('#agencia').mask('0000');
-  $('#conta').mask('00000000000000');
+  $('#conta').mask('00000000000');
   $('#digito').mask('0');
 
   function validarCampos() {
