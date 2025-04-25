@@ -8,6 +8,20 @@
 <script>
 let envioEmAndamento = false; // Flag de controle
 
+// Função para verificar se o envio está permitido com base no horário
+function verificarHorarioEnvio() {
+  const hoje = new Date();
+  const horaAtual = hoje.getHours(); // Obtém a hora atual
+
+  // Se o horário atual for maior ou igual ao limite (19h), bloqueia o envio
+  if (horaAtual >= 19) {
+    alert("Não é possível enviar a proposta após as 19h. Tente novamente no próximo dia.");
+    return false; // Bloqueia o envio
+  }
+
+  return true; // Permite o envio
+}
+
 function abrirFormularioProposta(valor, parcelas, valorParcela) {
   document.getElementById("valorSolicitado").value = valor.toFixed(2);
   document.getElementById("qtdParcelas").value = parcelas;
@@ -91,7 +105,7 @@ function abrirFormularioProposta(valor, parcelas, valorParcela) {
   </style>
 </head>
 <body>
-  <h2>Simulador de Empréstimo Consignado Privado - Ditto Crédito**</h2>
+  <h2>Simulador de Empréstimo Consignado Privado - Ditto Crédito</h2>
 
   <label for="sexo">Sexo:</label>
   <select id="sexo">
@@ -385,6 +399,12 @@ $(document).ready(function() {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
+
+    // Verificação do horário antes de enviar a proposta
+    if (!verificarHorarioEnvio()) {
+      return; // Impede o envio após as 19h
+    }
+
     if (envioEmAndamento) { // Verifica se já houve um envio
       alert('Proposta já foi enviada. Não é possível enviar novamente.');
       return;
