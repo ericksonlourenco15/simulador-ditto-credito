@@ -102,10 +102,10 @@ function abrirFormularioProposta(valor, parcelas, valorParcela) {
   <label for="dataNascimento">Data de Nascimento:</label>
   <input type="date" id="dataNascimento">
 
-  <label for="dataInicio">Data de início da carteira assinada:</label>
+  <label for="dataInicio">Data de início da carteira assinada: (Disponível no app CTPS Digital)</label>
   <input type="date" id="dataInicio">
 
-  <label for="margem">Valor máximo de parcela (R$):</label>
+  <label for="margem">Valor máximo de parcela (R$): (Disponível no app CTPS Digital)</label>
   <input type="number" id="margem" step="0.01">
 
   <label for="tipoSimulacao">Tipo de simulação:</label>
@@ -364,7 +364,7 @@ $(document).ready(function() {
   $('#celularConsultor, #celularCliente').mask('(00) 00000-0000');
   $('#cep').mask('00000-000');
   $('#agencia').mask('0000');
-  $('#conta').mask('00000000000');
+  $('#conta').mask('000000000000000');
   $('#digito').mask('0');
 
   function validarCampos() {
