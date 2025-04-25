@@ -4,7 +4,28 @@
   <meta charset="UTF-8">
   <title>Simulador de Empréstimo Consignado Privado | Ditto Crédito</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+function abrirFormularioProposta(valor, parcelas, valorParcela) {
+  document.getElementById("valorSolicitado").value = valor.toFixed(2);
+  document.getElementById("qtdParcelas").value = parcelas;
+  document.getElementById("valorParcela").value = valorParcela.toFixed(2);
+  document.getElementById("formularioProposta").style.display = "block";
+  document.querySelectorAll('.fase').forEach((f, i) => f.style.display = i === 0 ? 'block' : 'none');
+  document.getElementById("botoesForm").style.display = 'flex';
+  document.getElementById("botaoEnviar").style.display = 'none';
+  window.scrollTo({ top: document.getElementById("formularioProposta").offsetTop, behavior: "smooth" });
+}
+</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <style>
+    .fase {
+      transition: all 0.4s ease-in-out;
+    }
+    .erro {
+      border: 2px solid red !important;
+      background-color: #ffe6e6;
+    }
     body {
       font-family: Arial, sans-serif;
       background-color: #f8f8f8;
@@ -55,6 +76,16 @@
     #resultado {
       margin-top: 30px;
     }
+    .etapaBarra span {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #ccc;
+      line-height: 30px;
+      color: white;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -90,118 +121,285 @@
 
   <div id="resultado"></div>
 
-  <script>
-    const coeficientes = {
-      6: 0.264905,
-      8: 0.208688,
-      10: 0.175092,
-      12: 0.152844,
-      18: 0.116357,
-      24: 0.098813,
-      36: 0.082661
-    };
+<script>
+function simular() {
+  const nascimento = document.getElementById('dataNascimento').value;
+  const dataInicio = document.getElementById('dataInicio').value;
+  const margem = parseFloat(document.getElementById('margem').value);
+  const tipoSimulacao = document.getElementById('tipoSimulacao').value;
+  const valorContrato = parseFloat(document.getElementById('valorContrato').value);
+  const sexo = document.getElementById('sexo').value;
+  const resultado = document.getElementById('resultado');
+  resultado.innerHTML = '';
 
-    const regrasPorTempo = [
-      { min: 13, max: 24, parcelas: [6, 8], valorMin: 500, valorMax: 4000 },
-      { min: 25, max: 36, parcelas: [6, 8, 10], valorMin: 500, valorMax: 6000 },
-      { min: 37, max: 48, parcelas: [6, 8, 10, 12], valorMin: 500, valorMax: 8000 },
-      { min: 49, max: 72, parcelas: [6, 8, 10, 12, 18, 24], valorMin: 500, valorMax: 10000 },
-      { min: 73, max: 999, parcelas: [6, 8, 10, 12, 18, 24, 36], valorMin: 500, valorMax: 12000 }
-    ];
+  if (!nascimento || !dataInicio || !margem || (tipoSimulacao === 'contrato' && !valorContrato)) {
+    resultado.innerHTML = '<p style="color:red">Preencha todos os campos obrigatórios.</p>';
+    return;
+  }
 
-    function calcularIdade(dataStr) {
-      const hoje = new Date();
-      const nascimento = new Date(dataStr);
-      let idade = hoje.getFullYear() - nascimento.getFullYear();
-      const m = hoje.getMonth() - nascimento.getMonth();
-      if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) idade--;
-      return idade;
+  const hoje = new Date();
+  const nasc = new Date(nascimento);
+  let idade = hoje.getFullYear() - nasc.getFullYear();
+  if (hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate())) {
+    idade--;
+  }
+
+  const idadeMaxima = sexo === 'masculino' ? 62 : 57;
+  if (idade < 21 || idade > idadeMaxima) {
+    resultado.innerHTML = `<p style='color:red'>Idade inválida. Aceitamos entre 21 e ${idadeMaxima} anos.</p>`;
+    return;
+  }
+
+  const inicio = new Date(dataInicio);
+  const meses = (hoje.getFullYear() - inicio.getFullYear()) * 12 + hoje.getMonth() - inicio.getMonth();
+  if (meses < 13) {
+    resultado.innerHTML = '<p style="color:red">É necessário pelo menos 13 meses de carteira assinada.</p>';
+    return;
+  }
+
+  const coeficientes = {
+    6: 0.264905,
+    8: 0.208688,
+    10: 0.175092,
+    12: 0.152844,
+    18: 0.116357,
+    24: 0.098813,
+    36: 0.082661
+  };
+
+  const regrasPorTempo = [
+    { min: 13, max: 24, parcelas: [6, 8], valorMin: 500, valorMax: 4000 },
+    { min: 25, max: 36, parcelas: [6, 8, 10], valorMin: 500, valorMax: 6000 },
+    { min: 37, max: 48, parcelas: [6, 8, 10, 12], valorMin: 500, valorMax: 8000 },
+    { min: 49, max: 72, parcelas: [6, 8, 10, 12, 18, 24], valorMin: 500, valorMax: 10000 },
+    { min: 73, max: 999, parcelas: [6, 8, 10, 12, 18, 24, 36], valorMin: 500, valorMax: 12000 }
+  ];
+
+  const faixa = regrasPorTempo.find(f => meses >= f.min && meses <= f.max);
+  if (!faixa) {
+    resultado.innerHTML = '<p style="color:red">Não há regras aplicáveis para esse tempo de carteira.</p>';
+    return;
+  }
+
+  let html = `<p><strong>Idade:</strong> ${idade} anos</p>`;
+  html += `<p><strong>Meses de carteira:</strong> ${meses} meses</p>`;
+
+  if (tipoSimulacao === "parcela") {
+    const parcelaMaxima = margem / 2;
+    html += `<p><strong>Parcela máxima:</strong> R$ ${parcelaMaxima.toFixed(2)}</p>`;
+    html += `<table><tr><th>Parcelas</th><th>Valor liberado</th><th>Ação</th></tr>`;
+    faixa.parcelas.forEach(p => {
+      const valor = parcelaMaxima / coeficientes[p];
+      if (valor >= faixa.valorMin && valor <= faixa.valorMax) {
+        html += `<tr><td>${p}x</td><td>R$ ${valor.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valor}, ${p}, ${parcelaMaxima})'>Escolher</button></td></tr>`;
+      }
+    });
+    html += `</table>`;
+  } else {
+    if (valorContrato < faixa.valorMin || valorContrato > faixa.valorMax) {
+      resultado.innerHTML = `<p style="color:red">O valor do contrato deve estar entre R$ ${faixa.valorMin.toFixed(2)} e R$ ${faixa.valorMax.toFixed(2)} para esse tempo de carteira.</p>`;
+      return;
     }
-
-    function calcularMeses(dataInicioStr) {
-      const hoje = new Date();
-      const inicio = new Date(dataInicioStr);
-      return (hoje.getFullYear() - inicio.getFullYear()) * 12 + hoje.getMonth() - inicio.getMonth();
+    html += `<p><strong>Valor contratado:</strong> R$ ${valorContrato.toFixed(2)}</p>`;
+    html += `<table><tr><th>Parcelas</th><th>Valor da Parcela</th><th>Ação</th></tr>`;
+    let algumaValida = false;
+    faixa.parcelas.forEach(p => {
+      const parcela = valorContrato * coeficientes[p];
+      if (parcela <= margem / 2) {
+        html += `<tr><td>${p}x</td><td>R$ ${parcela.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valorContrato}, ${p}, ${parcela})'>Escolher</button></td></tr>`;
+        algumaValida = true;
+      }
+    });
+    html += `</table>`;
+    if (!algumaValida) {
+      resultado.innerHTML = `<p style='color:red'>Nenhuma opção disponível: o valor da parcela excede o limite de R$ ${(margem / 2).toFixed(2)} permitido.</p>`;
+      return;
     }
-
-    function simular() {
-      const nascimento = document.getElementById('dataNascimento').value;
-      const dataInicio = document.getElementById('dataInicio').value;
-      const margem = parseFloat(document.getElementById('margem').value);
-      const tipoSimulacao = document.getElementById('tipoSimulacao').value;
-      const valorContratoDesejado = parseFloat(document.getElementById('valorContrato').value);
-      const resultado = document.getElementById('resultado');
-      resultado.innerHTML = "";
-
-      const sexo = document.getElementById('sexo').value;
-      const idade = calcularIdade(nascimento);
-      const idadeMaxima = sexo === 'masculino' ? 62 : 57;
-      if (idade < 21 || idade > idadeMaxima) {
-        resultado.innerHTML = `<p style='color:red'>Idade deve estar entre 21 e ${idadeMaxima} anos para o sexo ${sexo}.</p>`;
-        return;
-      }
-
-      const meses = calcularMeses(dataInicio);
-      if (meses < 13) {
-        resultado.innerHTML = '<p style="color:red">Tempo mínimo de empresa: 13 meses.</p>';
-        return;
-      }
-
-      const faixa = regrasPorTempo.find(f => meses >= f.min && meses <= f.max);
-      if (!faixa) {
-        resultado.innerHTML = '<p style="color:red">Sem regras para esse tempo de empresa.</p>';
-        return;
-      }
-
-      let html = `<p><strong>Idade:</strong> ${idade} anos</p>`;
-      html += `<p><strong>Tempo de carteira:</strong> ${meses} meses</p>`;
-
-      if (tipoSimulacao === "parcela") {
-        if (!margem || margem <= 0) {
-          resultado.innerHTML = '<p style="color:red">Informe a margem disponível.</p>';
-          return;
-        }
-        const valorParcela = margem / 2;
-        html += `<p><strong>Parcela máxima:</strong> R$ ${valorParcela.toFixed(2)}</p>`;
-        html += `<table><tr><th>Parcelas</th><th>Valor liberado</th><th>Ação</th></tr>`;
-        faixa.parcelas.forEach(p => {
-          const valor = (valorParcela / coeficientes[p]);
-          if (valor >= faixa.valorMin && valor <= faixa.valorMax) {
-            html += `<tr><td>${p}x</td><td>R$ ${valor.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valor}, ${p}, ${valorParcela})'>Escolher</button></td></tr>`;
-          }
-        });
-        html += `</table>`;
-      } else {
-        if (!valorContratoDesejado || valorContratoDesejado < faixa.valorMin || valorContratoDesejado > faixa.valorMax) {
-          resultado.innerHTML = `<p style="color:red">Valor deve estar entre R$ ${faixa.valorMin.toFixed(2)} e R$ ${faixa.valorMax.toFixed(2)} para essa faixa.</p>`;
-          return;
-        }
-        html += `<p><strong>Valor contratado:</strong> R$ ${valorContratoDesejado.toFixed(2)}</p>`;
-        html += `<table><tr><th>Parcelas</th><th>Parcela mensal</th><th>Ação</th></tr>`;
-        let algumaOpcaoValida = false;
-        faixa.parcelas.forEach(p => {
-          const parcela = valorContratoDesejado * coeficientes[p];
-          if (parcela <= margem / 2) {
-            html += `<tr><td>${p}x</td><td>R$ ${parcela.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valorContratoDesejado}, ${p}, ${parcela})'>Escolher</button></td></tr>`;
-            algumaOpcaoValida = true;
-          }
-        });
-        html += `</table>`;
-        if (!algumaOpcaoValida) {
-          resultado.innerHTML = `<p style="color:red">Nenhuma opção disponível: o valor da parcela excede o limite de R$ ${(margem / 2).toFixed(2)} permitido.</p>`;
-          return;
-        }
-      }
-      resultado.innerHTML = html;
-    }
-  function abrirFormularioProposta(valor, parcelas, valorParcela) {
-  alert(`Proposta selecionada:
-Valor solicitado: R$ ${valor.toFixed(2)}
-Parcelas: ${parcelas}x
-Parcela mensal: R$ ${valorParcela.toFixed(2)}
-
-(Em breve este botão abrirá o formulário completo para envio ao CRM via Make)`);
+  }
+  resultado.innerHTML = html;
 }
 </script>
-</body>
+<div id="formularioProposta" style="display:none; margin-top: 40px;">
+  <h3>Formulário de Proposta</h3>
+  <fieldset class="fase" id="fase1">
+    <legend>FASE 1 - DADOS DO CONSULTOR</legend>
+    <label for="nomeConsultor">Nome completo do consultor</label>
+    <input type="text" id="nomeConsultor">
+    <label for="cpfConsultor">CPF do Consultor</label>
+    <input type="text" id="cpfConsultor">
+    <label for="emailConsultor">E-mail do consultor</label>
+    <input type="email" id="emailConsultor">
+    <label for="celularConsultor">Celular do consultor</label>
+    <input type="text" id="celularConsultor">
+  </fieldset>
+  <fieldset class="fase" id="fase2" style="display:none;">
+    <legend>FASE 2 - DADOS DO CLIENTE</legend>
+    <label for="nomeCliente">Nome completo do cliente</label>
+    <input type="text" id="nomeCliente">
+    <label for="cpfCliente">CPF do Cliente</label>
+    <input type="text" id="cpfCliente">
+    <label for="celularCliente">Celular do cliente</label>
+    <input type="text" id="celularCliente">
+    <label for="dataNascimentoCliente">Data de nascimento do cliente</label>
+    <input type="date" id="dataNascimentoCliente">
+    <label for="tipoDocumento">Tipo de documento</label>
+    <select id="tipoDocumento">
+      <option value="RG">RG</option>
+      <option value="CNH">CNH</option>
+    </select>
+    <label for="numeroDocumento">Número do documento</label>
+    <input type="text" id="numeroDocumento">
+    <label for="orgaoEmissor">Órgão Emissor</label>
+    <input type="text" id="orgaoEmissor">
+    <label for="dataEmissao">Data de emissão</label>
+    <input type="date" id="dataEmissao">
+    <label for="uf">UF</label>
+    <select id="uf">
+      <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+    </select>
+    <label for="nomeMae">Nome da mãe</label>
+    <input type="text" id="nomeMae">
+    <label for="nomePai">Nome do pai</label>
+    <input type="text" id="nomePai">
+    <label for="cep">CEP</label>
+    <input type="text" id="cep">
+    <label for="endereco">Endereço completo</label>
+    <input type="text" id="endereco">
+    <label for="numero">Número</label>
+    <input type="text" id="numero">
+    <label for="complemento">Complemento</label>
+    <input type="text" id="complemento">
+  </fieldset>
+  <fieldset class="fase" id="fase3" style="display:none;">
+    <legend>FASE 3 - DADOS BANCÁRIOS DO CLIENTE</legend>
+    <label for="banco">Banco</label>
+    <select id="banco">
+  <option value="001">001 - Banco do Brasil S.A</option>
+  <option value="003">003 - Banco da Amazônia S.A.</option>
+  <option value="004">004 - Banco do Nordeste do Brasil S.A.</option>
+  <option value="021">021 - Banestes S.A. Banco do Estado do Espírito Santo</option>
+  <option value="025">025 - Banco Alfa S.A.</option>
+  <option value="033">033 - Banco Santander (Brasil) S.A.</option>
+  <option value="037">037 - Banco do Estado do Pará S.A.</option>
+  <option value="041">041 - Banco do Estado do Rio Grande do Sul S.A.</option>
+  <option value="047">047 - Banco do Estado de Sergipe S.A.</option>
+  <option value="009">009 - Banco Crefisa</option>
+  <option value="070">070 - BRB - Crédito, Financiamento e Investimento S.A.</option>
+  <option value="077">077 - Banco Inter S.A</option>
+  <option value="086">086 - COOPERATIVA CENTRAL DE CREDITO - AILOS</option>
+  <option value="031">031 - Central de Cooparativas da Economia e Crédito Mútuo</option>
+  <option value="091">091 - Cooparativa Canual de Crédito Noroeste Brasileiro</option>
+  <option value="104">104 - Caixa Econômica Federal</option>
+  <option value="121">121 - Banco Agibank S.A</option>
+  <option value="133">133 - CRESOL</option>
+  <option value="138">138 - Unicred do Brasil</option>
+  <option value="208">208 - Banco BTG Pactual S.A.</option>
+  <option value="212">212 - Banco Original S.A.</option>
+  <option value="218">218 - Banco BS2 S.A. (Banco Bonsucesso S.A.)</option>
+  <option value="237">237 - Banco Bradesco S.A.</option>
+  <option value="246">246 - Banco ABC Brasil S.A.</option>
+  <option value="200">200 - Nu Bank Pagamentos S.A</option>
+  <option value="318">318 - Banco BMG S.A.</option>
+  <option value="335">335 - Banco Digio S.A.</option>
+  <option value="336">336 - Banco C6 S.A (C6 Bank)</option>
+  <option value="341">341 - Itau Unibanco S.A</option>
+  <option value="380">380 - Picpay Serviços S.A.</option>
+  <option value="389">389 - Banco Mercantil do Brasil S.A.</option>
+  <option value="403">403 - Cora Sociedade de Crédito Direto S.A.</option>
+  <option value="422">422 - Banco Safra S.A.</option>
+  <option value="623">623 - Banco Pan S.A.</option>
+  <option value="707">707 - Banco Daycoval S.A</option>
+  <option value="740">740 - Banco Citibank S.A</option>
+  <option value="748">748 - Banco Cooperativo Sicredi S.A</option>
+  <option value="755">755 - Banco Cooperativo do Brasil SIA - Bancoob/Sicoob</option>
+</select>
+    <label for="tipoConta">Tipo de conta</label>
+    <select id="tipoConta">
+      <option value="corrente">Corrente</option>
+      <option value="poupança">Poupança</option>
+    </select>
+    <label for="agencia">Agência</label>
+    <input type="text" id="agencia">
+    <label for="conta">Conta</label>
+    <input type="text" id="conta">
+    <label for="digito">Dígito</label>
+    <input type="text" id="digito">
+  </fieldset>
+  <fieldset class="fase" id="fase4" style="display:none;">
+    <legend>FASE 4 - DADOS DA PROPOSTA</legend>
+    <label for="valorSolicitado">Valor solicitado</label>
+    <input type="text" id="valorSolicitado" readonly>
+    <label for="qtdParcelas">Qtd de parcelas</label>
+    <input type="text" id="qtdParcelas" readonly>
+    <label for="valorParcela">Valor da parcela</label>
+    <input type="text" id="valorParcela" readonly>
+  </fieldset>
+  <div id="botoesForm" class="form-navigation">
+    <button type="button" onclick="irParaFase(Math.max(0, [...document.querySelectorAll('.fase')].findIndex(f => f.style.display === 'block') - 1))">Voltar</button>
+    <button type="button" onclick="irParaFase(Math.min(document.querySelectorAll('.fase').length - 1, [...document.querySelectorAll('.fase')].findIndex(f => f.style.display === 'block') + 1))">Próximo</button>
+  </div>
+  <button id="botaoEnviar" style="display:none" onclick="enviarProposta()">Enviar proposta</button>
+</div>
+<script>
+function irParaFase(faseIndex) {
+  const fases = document.querySelectorAll('#formularioProposta .fase');
+  fases.forEach((f, i) => f.style.display = i === faseIndex ? 'block' : 'none');
+  const botoes = document.getElementById('botoesForm');
+  const enviar = document.getElementById('botaoEnviar');
+  if (faseIndex === fases.length - 1) {
+    botoes.style.display = 'none';
+    enviar.style.display = 'block';
+  } else {
+    botoes.style.display = 'flex';
+    enviar.style.display = 'none';
+  }
+}
+
+</script>
+<script>
+$(document).ready(function() {
+  $('#cpfConsultor, #cpfCliente').mask('000.000.000-00');
+  $('#celularConsultor, #celularCliente').mask('(00) 00000-0000');
+  $('#cep').mask('00000-000');
+  $('#agencia').mask('0000');
+  $('#conta').mask('00000000');
+  $('#digito').mask('0');
+
+  function validarCampos() {
+    let valido = true;
+    $('#formularioProposta input:visible').each(function() {
+      if (!$(this).val()) {
+        $(this).addClass('erro');
+        valido = false;
+      } else {
+        $(this).removeClass('erro');
+      }
+    });
+    return valido;
+  }
+
+  window.enviarProposta = function() {
+    if (!validarCampos()) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+    const dados = {};
+    $('#formularioProposta input, #formularioProposta select').each(function() {
+      dados[this.id] = $(this).val();
+    });
+    fetch('https://api.goalfy.com.br/api/webhooks/59d1635c-d882-4a0f-bd6f-097802c58fb9', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    }).then(response => {
+      if (response.ok) {
+        alert('Proposta enviada com sucesso!');
+        document.getElementById('formularioProposta').reset();
+      } else {
+        alert('Erro ao enviar a proposta.');
+      }
+    }).catch(() => alert('Erro de conexão ao enviar a proposta.'));
+  }
+});
+</script>
 </html>
