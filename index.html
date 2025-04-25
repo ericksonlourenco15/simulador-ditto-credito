@@ -5,6 +5,20 @@
   <title>Simulador de Empréstimo Consignado Privado | Ditto Crédito</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+let envioEmAndamento = false; // Flag de controle
+
+function abrirFormularioProposta(valor, parcelas, valorParcela) {
+  document.getElementById("valorSolicitado").value = valor.toFixed(2);
+  document.getElementById("qtdParcelas").value = parcelas;
+  document.getElementById("valorParcela").value = valorParcela.toFixed(2);
+  document.getElementById("formularioProposta").style.display = "block";
+  document.querySelectorAll('.fase').forEach((f, i) => f.style.display = i === 0 ? 'block' : 'none');
+  document.getElementById("botoesForm").style.display = 'flex';
+  document.getElementById("botaoEnviar").style.display = 'none';
+  window.scrollTo({ top: document.getElementById("formularioProposta").offsetTop, behavior: "smooth" });
+}
+</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <style>
     .fase {
@@ -79,7 +93,6 @@
 <body>
   <h2>Simulador de Empréstimo Consignado Privado | Ditto Crédito</h2>
 
-  <!-- Campo de simulação -->
   <label for="sexo">Sexo:</label>
   <select id="sexo">
     <option value="masculino">Masculino</option>
@@ -208,9 +221,144 @@ function simular() {
   resultado.innerHTML = html;
 }
 </script>
-
+<div id="formularioProposta" style="display:none; margin-top: 40px;">
+  <h3>Formulário de Proposta</h3>
+  <fieldset class="fase" id="fase1">
+    <legend>FASE 1 - DADOS DO CONSULTOR</legend>
+    <label for="nomeConsultor">Nome completo do consultor</label>
+    <input type="text" id="nomeConsultor">
+    <label for="cpfConsultor">CPF do Consultor</label>
+    <input type="text" id="cpfConsultor">
+    <label for="emailConsultor">E-mail do consultor</label>
+    <input type="email" id="emailConsultor">
+    <label for="celularConsultor">Celular do consultor</label>
+    <input type="text" id="celularConsultor">
+  </fieldset>
+  <fieldset class="fase" id="fase2" style="display:none;">
+    <legend>FASE 2 - DADOS DO CLIENTE</legend>
+    <label for="nomeCliente">Nome completo do cliente</label>
+    <input type="text" id="nomeCliente">
+    <label for="cpfCliente">CPF do Cliente</label>
+    <input type="text" id="cpfCliente">
+    <label for="celularCliente">Celular do cliente</label>
+    <input type="text" id="celularCliente">
+    <label for="dataNascimentoCliente">Data de nascimento do cliente</label>
+    <input type="date" id="dataNascimentoCliente">
+    <label for="tipoDocumento">Tipo de documento</label>
+    <select id="tipoDocumento">
+      <option value="RG">RG</option>
+      <option value="CNH">CNH</option>
+    </select>
+    <label for="numeroDocumento">Número do documento</label>
+    <input type="text" id="numeroDocumento">
+    <label for="orgaoEmissor">Órgão Emissor</label>
+    <input type="text" id="orgaoEmissor">
+    <label for="dataEmissao">Data de emissão</label>
+    <input type="date" id="dataEmissao">
+    <label for="uf">UF</label>
+    <select id="uf">
+      <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+    </select>
+    <label for="nomeMae">Nome da mãe</label>
+    <input type="text" id="nomeMae">
+    <label for="nomePai">Nome do pai</label>
+    <input type="text" id="nomePai">
+    <label for="cep">CEP</label>
+    <input type="text" id="cep">
+    <label for="endereco">Endereço completo</label>
+    <input type="text" id="endereco">
+    <label for="numero">Número</label>
+    <input type="text" id="numero">
+    <label for="complemento">Complemento</label>
+    <input type="text" id="complemento">
+  </fieldset>
+  <fieldset class="fase" id="fase3" style="display:none;">
+    <legend>FASE 3 - DADOS BANCÁRIOS DO CLIENTE</legend>
+    <label for="banco">Banco</label>
+    <select id="banco">
+  <option value="001">001 - Banco do Brasil S.A</option>
+  <option value="003">003 - Banco da Amazônia S.A.</option>
+  <option value="004">004 - Banco do Nordeste do Brasil S.A.</option>
+  <option value="021">021 - Banestes S.A. Banco do Estado do Espírito Santo</option>
+  <option value="025">025 - Banco Alfa S.A.</option>
+  <option value="033">033 - Banco Santander (Brasil) S.A.</option>
+  <option value="037">037 - Banco do Estado do Pará S.A.</option>
+  <option value="041">041 - Banco do Estado do Rio Grande do Sul S.A.</option>
+  <option value="047">047 - Banco do Estado de Sergipe S.A.</option>
+  <option value="009">009 - Banco Crefisa</option>
+  <option value="070">070 - BRB - Crédito, Financiamento e Investimento S.A.</option>
+  <option value="077">077 - Banco Inter S.A</option>
+  <option value="086">086 - COOPERATIVA CENTRAL DE CREDITO - AILOS</option>
+  <option value="031">031 - Central de Cooparativas da Economia e Crédito Mútuo</option>
+  <option value="091">091 - Cooparativa Canual de Crédito Noroeste Brasileiro</option>
+  <option value="104">104 - Caixa Econômica Federal</option>
+  <option value="121">121 - Banco Agibank S.A</option>
+  <option value="133">133 - CRESOL</option>
+  <option value="138">138 - Unicred do Brasil</option>
+  <option value="208">208 - Banco BTG Pactual S.A.</option>
+  <option value="212">212 - Banco Original S.A.</option>
+  <option value="218">218 - Banco BS2 S.A. (Banco Bonsucesso S.A.)</option>
+  <option value="237">237 - Banco Bradesco S.A.</option>
+  <option value="246">246 - Banco ABC Brasil S.A.</option>
+  <option value="200">200 - Nu Bank Pagamentos S.A</option>
+  <option value="318">318 - Banco BMG S.A.</option>
+  <option value="335">335 - Banco Digio S.A.</option>
+  <option value="336">336 - Banco C6 S.A (C6 Bank)</option>
+  <option value="341">341 - Itau Unibanco S.A</option>
+  <option value="380">380 - Picpay Serviços S.A.</option>
+  <option value="389">389 - Banco Mercantil do Brasil S.A.</option>
+  <option value="403">403 - Cora Sociedade de Crédito Direto S.A.</option>
+  <option value="422">422 - Banco Safra S.A.</option>
+  <option value="623">623 - Banco Pan S.A.</option>
+  <option value="707">707 - Banco Daycoval S.A</option>
+  <option value="740">740 - Banco Citibank S.A</option>
+  <option value="748">748 - Banco Cooperativo Sicredi S.A</option>
+  <option value="755">755 - Banco Cooperativo do Brasil SIA - Bancoob/Sicoob</option>
+</select>
+    <label for="tipoConta">Tipo de conta</label>
+    <select id="tipoConta">
+      <option value="corrente">Corrente</option>
+      <option value="poupança">Poupança</option>
+    </select>
+    <label for="agencia">Agência</label>
+    <input type="text" id="agencia">
+    <label for="conta">Conta</label>
+    <input type="text" id="conta">
+    <label for="digito">Dígito</label>
+    <input type="text" id="digito">
+  </fieldset>
+  <fieldset class="fase" id="fase4" style="display:none;">
+    <legend>FASE 4 - DADOS DA PROPOSTA</legend>
+    <label for="valorSolicitado">Valor solicitado</label>
+    <input type="text" id="valorSolicitado" readonly>
+    <label for="qtdParcelas">Qtd de parcelas</label>
+    <input type="text" id="qtdParcelas" readonly>
+    <label for="valorParcela">Valor da parcela</label>
+    <input type="text" id="valorParcela" readonly>
+  </fieldset>
+  <div id="botoesForm" class="form-navigation">
+    <button type="button" onclick="irParaFase(Math.max(0, [...document.querySelectorAll('.fase')].findIndex(f => f.style.display === 'block') - 1))">Voltar</button>
+    <button type="button" onclick="irParaFase(Math.min(document.querySelectorAll('.fase').length - 1, [...document.querySelectorAll('.fase')].findIndex(f => f.style.display === 'block') + 1))">Próximo</button>
+  </div>
+  <button id="botaoEnviar" style="display:none" onclick="enviarProposta()">Enviar proposta</button>
+</div>
 <script>
-// Função para enviar os dados da proposta
+function irParaFase(faseIndex) {
+  const fases = document.querySelectorAll('#formularioProposta .fase');
+  fases.forEach((f, i) => f.style.display = i === faseIndex ? 'block' : 'none');
+  const botoes = document.getElementById('botoesForm');
+  const enviar = document.getElementById('botaoEnviar');
+  if (faseIndex === fases.length - 1) {
+    botoes.style.display = 'none';
+    enviar.style.display = 'block';
+  } else {
+    botoes.style.display = 'flex';
+    enviar.style.display = 'none';
+  }
+}
+
+</script>
+<script>
 $(document).ready(function() {
   $('#cpfConsultor, #cpfCliente').mask('000.000.000-00');
   $('#celularConsultor, #celularCliente').mask('(00) 00000-0000');
@@ -237,11 +385,18 @@ $(document).ready(function() {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
+    if (envioEmAndamento) { // Verifica se já houve um envio
+      alert('Proposta já foi enviada. Não é possível enviar novamente.');
+      return;
+    }
+    envioEmAndamento = true; // Impede envios duplicados
+
     const dados = {};
     $('#formularioProposta input, #formularioProposta select').each(function() {
       dados[this.id] = $(this).val();
     });
-    fetch('https://hook.us1.make.com/9kgf3swbxuvfcjprft6rp876vqfd7wnx', {
+
+    fetch('https://api.goalfy.com.br/api/webhooks/59d1635c-d882-4a0f-bd6f-097802c58fb9', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(dados)
@@ -249,7 +404,7 @@ $(document).ready(function() {
       if (response.ok) {
         alert('Proposta enviada com sucesso!');
         document.getElementById('formularioProposta').reset();
-        location.reload();  // Recarrega a página
+        location.reload(); // Recarregar a página para reiniciar o processo
       } else {
         alert('Erro ao enviar a proposta.');
       }
