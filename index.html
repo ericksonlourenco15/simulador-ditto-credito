@@ -341,6 +341,7 @@ function simular() {
   <button id="botaoEnviar" style="display:none" onclick="enviarProposta()">Enviar proposta</button>
 </div>
 <script>
+// Função para navegar entre as fases
 function irParaFase(faseIndex) {
   const fases = document.querySelectorAll('#formularioProposta .fase');
   fases.forEach((f, i) => f.style.display = i === faseIndex ? 'block' : 'none');
@@ -354,7 +355,6 @@ function irParaFase(faseIndex) {
     enviar.style.display = 'none';
   }
 }
-
 </script>
 <script>
 $(document).ready(function() {
@@ -387,7 +387,7 @@ $(document).ready(function() {
     $('#formularioProposta input, #formularioProposta select').each(function() {
       dados[this.id] = $(this).val();
     });
-    fetch('https://api.goalfy.com.br/api/webhooks/59d1635c-d882-4a0f-bd6f-097802c58fb9', {
+    fetch('https://hook.us1.make.com/9kgf3swbxuvfcjprft6rp876vqfd7wnx', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(dados)
@@ -395,6 +395,7 @@ $(document).ready(function() {
       if (response.ok) {
         alert('Proposta enviada com sucesso!');
         document.getElementById('formularioProposta').reset();
+        location.reload();  // Recarrega a página
       } else {
         alert('Erro ao enviar a proposta.');
       }
