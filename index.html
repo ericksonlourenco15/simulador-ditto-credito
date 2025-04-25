@@ -91,7 +91,7 @@ function abrirFormularioProposta(valor, parcelas, valorParcela) {
   </style>
 </head>
 <body>
-  <h2>Simulador de Empréstimo Consignado Privado | Ditto Crédito</h2>
+  <h2>Simulador de Empréstimo Consignado Privado - Ditto Crédito</h2>
 
   <label for="sexo">Sexo:</label>
   <select id="sexo">
@@ -187,7 +187,7 @@ function simular() {
   html += `<p><strong>Meses de carteira:</strong> ${meses} meses</p>`;
 
   if (tipoSimulacao === "parcela") {
-    const parcelaMaxima = margem / 2;
+    const parcelaMaxima = margem * 0.60;
     html += `<p><strong>Parcela máxima:</strong> R$ ${parcelaMaxima.toFixed(2)}</p>`;
     html += `<table><tr><th>Parcelas</th><th>Valor liberado</th><th>Ação</th></tr>`;
     faixa.parcelas.forEach(p => {
