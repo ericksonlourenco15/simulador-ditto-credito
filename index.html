@@ -202,7 +202,7 @@ function simular() {
   html += `<p><strong>Meses de carteira:</strong> ${meses} meses</p>`;
 
   if (tipoSimulacao === "parcela") {
-    const parcelaMaxima = margem * 0.60;
+    const parcelaMaxima = margem * 0.70;
     html += `<p><strong>Parcela máxima:</strong> R$ ${parcelaMaxima.toFixed(2)}</p>`;
     html += `<table><tr><th>Parcelas</th><th>Valor liberado</th><th>Ação</th></tr>`;
     faixa.parcelas.forEach(p => {
