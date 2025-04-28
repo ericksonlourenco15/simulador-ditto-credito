@@ -11,11 +11,12 @@ let envioEmAndamento = false; // Flag de controle
 // Função para verificar se o envio está permitido com base no horário
 function verificarHorarioEnvio() {
   const hoje = new Date();
+  const diaSemana = hoje.getDay(); // Obtém o dia da semana
   const horaAtual = hoje.getHours(); // Obtém a hora atual
 
-  // Se o horário atual for maior ou igual ao limite (19h), bloqueia o envio
-  if (horaAtual >= 19) {
-    alert("Não é possível enviar a proposta após as 19h. Tente novamente no próximo dia.");
+  // Se for sábado (6), domingo (0) ou fora do horário permitido (19h)
+  if (diaSemana === 0 || diaSemana === 6 || horaAtual >= 18 || horaAtual < 9) {
+    alert("Propostas só podem ser enviadas de segunda a sexta-feira, entre 09h e 18h.");
     return false; // Bloqueia o envio
   }
 
