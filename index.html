@@ -14,9 +14,9 @@ function verificarHorarioEnvio() {
   const diaSemana = hoje.getDay(); // Obtém o dia da semana
   const horaAtual = hoje.getHours(); // Obtém a hora atual
 
-  // Se for sábado (6), domingo (0) ou fora do horário permitido (19h)
-  if (diaSemana === 0 || diaSemana === 6 || horaAtual >= 18 || horaAtual < 9) {
-    alert("Propostas só podem ser enviadas de segunda a sexta-feira, entre 09h e 18h.");
+  // Se for sábado (6), domingo (0) ou fora do horário permitido (18h)
+  if (diaSemana === 0 || diaSemana === 6 || horaAtual >= 18 || horaAtual < 10) {
+    alert("Propostas só podem ser enviadas de segunda a sexta-feira, entre 10h e 18h.");
     return false; // Bloqueia o envio
   }
 
@@ -175,13 +175,13 @@ function simular() {
   }
 
   const coeficientes = {
-    6: 0.264454,
-    8: 0.208332,
-    10: 0.174793,
-    12: 0.152585,
-    18: 0.116161,
-    24: 0.098647,
-    36: 0.082524
+    6: 0.263102,
+    8: 0.207269,
+    10: 0.173900,
+    12: 0.151810,
+    18: 0.115578,
+    24: 0.098155,
+    36: 0.082114
   };
 
   const regrasPorTempo = [
