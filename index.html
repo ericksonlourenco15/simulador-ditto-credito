@@ -16,7 +16,7 @@ function verificarHorarioEnvio() {
 
   // Se for sábado (6), domingo (0) ou fora do horário permitido (18h)
   if (diaSemana === 0 || diaSemana === 6 || horaAtual >= 18 || horaAtual < 9) {
-    alert("Envio de propostas pausado para manutenção do sistema");
+    alert("Propostas só podem ser enviadas de segunda a sexta-feira, entre 10h e 18h.");
     return false; // Bloqueia o envio
   }
 
@@ -303,7 +303,7 @@ function simular() {
   <option value="009">009 - Banco Crefisa</option>
   <option value="070">070 - BRB - Crédito, Financiamento e Investimento S.A.</option>
   <option value="077">077 - Banco Inter S.A</option>
-  <option value="086">086 - COOPERATIVA CENTRAL DE CREDITO - AILOS</option>
+  <option value="085">086 - COOPERATIVA CENTRAL DE CREDITO - AILOS</option>
   <option value="031">031 - Central de Cooparativas da Economia e Crédito Mútuo</option>
   <option value="091">091 - Cooparativa Canual de Crédito Noroeste Brasileiro</option>
   <option value="104">104 - Caixa Econômica Federal</option>
@@ -315,7 +315,7 @@ function simular() {
   <option value="218">218 - Banco BS2 S.A. (Banco Bonsucesso S.A.)</option>
   <option value="237">237 - Banco Bradesco S.A.</option>
   <option value="246">246 - Banco ABC Brasil S.A.</option>
-  <option value="200">260 - Nu Bank Pagamentos S.A</option>
+  <option value="260">260 - Nu Bank Pagamentos S.A</option>
   <option value="318">318 - Banco BMG S.A.</option>
   <option value="335">335 - Banco Digio S.A.</option>
   <option value="336">336 - Banco C6 S.A (C6 Bank)</option>
