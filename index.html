@@ -15,7 +15,7 @@ function verificarHorarioEnvio() {
   const horaAtual = hoje.getHours(); // Obtém a hora atual
 
   // Se for sábado (6), domingo (0) ou fora do horário permitido (18h)
-  if (diaSemana === 0 || diaSemana === 6 || horaAtual >= 11 || horaAtual < 10) {
+  if (diaSemana === 0 || diaSemana === 6 || horaAtual >= 18 || horaAtual < 9) {
     alert("Envio de propostas pausado para manutenção do sistema");
     return false; // Bloqueia o envio
   }
@@ -175,13 +175,13 @@ function simular() {
   }
 
   const coeficientes = {
-    6: 0.263102,
-    8: 0.207269,
-    10: 0.173900,
-    12: 0.151810,
-    18: 0.115578,
-    24: 0.098155,
-    36: 0.082114
+    6: 0.262655,
+    8: 0.206915,
+    10: 0.173604,
+    12: 0.151553,
+    18: 0.115384,
+    24: 0.097991,
+    36: 0.081977
   };
 
   const regrasPorTempo = [
