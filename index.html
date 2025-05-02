@@ -15,8 +15,8 @@ function verificarHorarioEnvio() {
   const horaAtual = hoje.getHours(); // Obtém a hora atual
 
   // Se for sábado (6), domingo (0) ou fora do horário permitido (18h)
-  if (diaSemana === 0 || diaSemana === 6 || horaAtual >= 18 || horaAtual < 10) {
-    alert("Propostas só podem ser enviadas de segunda a sexta-feira, entre 10h e 18h. Exceto feriados");
+  if (diaSemana === 0 || diaSemana === 6 || horaAtual >= 14 || horaAtual < 10) {
+    alert("Envio de propostas pausado para manutenção no sistema de e-mails");
     return false; // Bloqueia o envio
   }
 
