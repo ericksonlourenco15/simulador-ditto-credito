@@ -163,7 +163,7 @@ function simular() {
 
   const idadeMaxima = sexo === 'masculino' ? 62 : 57;
   if (idade < 21 || idade > idadeMaxima) {
-    resultado.innerHTML = `<p style='color:red'>Idade inválida. Aceitamos entre 21 e ${idadeMaxima} anos.</p>`;
+    resultado.innerHTML = <p style='color:red'>Idade inválida. Aceitamos entre 21 e ${idadeMaxima} anos.</p>;
     return;
   }
 
@@ -198,38 +198,38 @@ function simular() {
     return;
   }
 
-  let html = `<p><strong>Idade:</strong> ${idade} anos</p>`;
-  html += `<p><strong>Meses de carteira:</strong> ${meses} meses</p>`;
+  let html = <p><strong>Idade:</strong> ${idade} anos</p>;
+  html += <p><strong>Meses de carteira:</strong> ${meses} meses</p>;
 
   if (tipoSimulacao === "parcela") {
     const parcelaMaxima = margem * 0.70;
-    html += `<p><strong>Parcela máxima:</strong> R$ ${parcelaMaxima.toFixed(2)}</p>`;
-    html += `<table><tr><th>Parcelas</th><th>Valor liberado</th><th>Ação</th></tr>`;
+    html += <p><strong>Parcela máxima:</strong> R$ ${parcelaMaxima.toFixed(2)}</p>;
+    html += <table><tr><th>Parcelas</th><th>Valor liberado</th><th>Ação</th></tr>;
     faixa.parcelas.forEach(p => {
       const valor = parcelaMaxima / coeficientes[p];
       if (valor >= faixa.valorMin && valor <= faixa.valorMax) {
-        html += `<tr><td>${p}x</td><td>R$ ${valor.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valor}, ${p}, ${parcelaMaxima})'>Escolher</button></td></tr>`;
+        html += <tr><td>${p}x</td><td>R$ ${valor.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valor}, ${p}, ${parcelaMaxima})'>Escolher</button></td></tr>;
       }
     });
-    html += `</table>`;
+    html += </table>;
   } else {
     if (valorContrato < faixa.valorMin || valorContrato > faixa.valorMax) {
-      resultado.innerHTML = `<p style="color:red">O valor do contrato deve estar entre R$ ${faixa.valorMin.toFixed(2)} e R$ ${faixa.valorMax.toFixed(2)} para esse tempo de carteira.</p>`;
+      resultado.innerHTML = <p style="color:red">O valor do contrato deve estar entre R$ ${faixa.valorMin.toFixed(2)} e R$ ${faixa.valorMax.toFixed(2)} para esse tempo de carteira.</p>;
       return;
     }
-    html += `<p><strong>Valor contratado:</strong> R$ ${valorContrato.toFixed(2)}</p>`;
-    html += `<table><tr><th>Parcelas</th><th>Valor da Parcela</th><th>Ação</th></tr>`;
+    html += <p><strong>Valor contratado:</strong> R$ ${valorContrato.toFixed(2)}</p>;
+    html += <table><tr><th>Parcelas</th><th>Valor da Parcela</th><th>Ação</th></tr>;
     let algumaValida = false;
     faixa.parcelas.forEach(p => {
       const parcela = valorContrato * coeficientes[p];
       if (parcela <= margem / 2) {
-        html += `<tr><td>${p}x</td><td>R$ ${parcela.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valorContrato}, ${p}, ${parcela})'>Escolher</button></td></tr>`;
+        html += <tr><td>${p}x</td><td>R$ ${parcela.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valorContrato}, ${p}, ${parcela})'>Escolher</button></td></tr>;
         algumaValida = true;
       }
     });
-    html += `</table>`;
+    html += </table>;
     if (!algumaValida) {
-      resultado.innerHTML = `<p style='color:red'>Nenhuma opção disponível: o valor da parcela excede o limite de R$ ${(margem / 2).toFixed(2)} permitido.</p>`;
+      resultado.innerHTML = <p style='color:red'>Nenhuma opção disponível: o valor da parcela excede o limite de R$ ${(margem / 2).toFixed(2)} permitido.</p>;
       return;
     }
   }
@@ -395,48 +395,42 @@ $(document).ready(function() {
     return valido;
   }
 
- window.enviarProposta = function() {
-  if (!validarCampos()) {
-    alert('Por favor, preencha todos os campos obrigatórios.');
-    return;
-  }
-
-  if (!verificarHorarioEnvio()) {
-    return; // Impede o envio fora do horário permitido
-  }
-
-  if (envioEmAndamento) {
-    alert('Proposta já foi enviada. Não é possível enviar novamente.');
-    return;
-  }
-
-  envioEmAndamento = true;
-
-  const dados = {};
-  $('#formularioProposta input, #formularioProposta select').each(function() {
-    dados[this.id] = $(this).val();
-  });
-
-  fetch('https://api.goalfy.com.br/api/webhooks/59d1635c-d882-4a0f-bd6f-097802c58fb9', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(dados)
-  })
-  .then(response => {
-    if (response.ok) {
-      alert('Proposta enviada com sucesso!');
-      document.getElementById('formularioProposta').reset();
-      location.reload();
-    } else {
-      alert('Erro ao enviar a proposta.');
+  window.enviarProposta = function() {
+    if (!validarCampos()) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
     }
-  })
-  .catch(() => {
-    alert('Erro de conexão ao enviar a proposta.');
-  })
-  .finally(() => {
-    envioEmAndamento = false; // Libera novo envio, mesmo em caso de erro
-  });
-}
+
+    // Verificação do horário antes de enviar a proposta
+    if (!verificarHorarioEnvio()) {
+      return; // Impede o envio após as 19h
+    }
+
+    if (envioEmAndamento) { // Verifica se já houve um envio
+      alert('Proposta já foi enviada. Não é possível enviar novamente.');
+      return;
+    }
+    envioEmAndamento = true; // Impede envios duplicados
+
+    const dados = {};
+    $('#formularioProposta input, #formularioProposta select').each(function() {
+      dados[this.id] = $(this).val();
+    });
+
+    fetch('https://api.goalfy.com.br/api/webhooks/59d1635c-d882-4a0f-bd6f-097802c58fb9', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    }).then(response => {
+      if (response.ok) {
+        alert('Proposta enviada com sucesso!');
+        document.getElementById('formularioProposta').reset();
+        location.reload(); // Recarregar a página para reiniciar o processo
+      } else {
+        alert('Erro ao enviar a proposta.');
+      }
+    }).catch(() => alert('Erro de conexão ao enviar a proposta.'));
+  }
+});
 </script>
 </html>
