@@ -163,7 +163,7 @@ function simular() {
 
   const idadeMaxima = sexo === 'masculino' ? 62 : 57;
   if (idade < 21 || idade > idadeMaxima) {
-    resultado.innerHTML = <p style='color:red'>Idade inválida. Aceitamos entre 21 e ${idadeMaxima} anos.</p>;
+    resultado.innerHTML = `<p style='color:red'>Idade inválida. Aceitamos entre 21 e ${idadeMaxima} anos.</p>`;
     return;
   }
 
@@ -198,38 +198,38 @@ function simular() {
     return;
   }
 
-  let html = <p><strong>Idade:</strong> ${idade} anos</p>;
-  html += <p><strong>Meses de carteira:</strong> ${meses} meses</p>;
+  let html = `<p><strong>Idade:</strong> ${idade} anos</p>`;
+  html += `<p><strong>Meses de carteira:</strong> ${meses} meses</p>`;
 
   if (tipoSimulacao === "parcela") {
     const parcelaMaxima = margem * 0.70;
-    html += <p><strong>Parcela máxima:</strong> R$ ${parcelaMaxima.toFixed(2)}</p>;
-    html += <table><tr><th>Parcelas</th><th>Valor liberado</th><th>Ação</th></tr>;
+    html += `<p><strong>Parcela máxima:</strong> R$ ${parcelaMaxima.toFixed(2)}</p>`;
+    html += `<table><tr><th>Parcelas</th><th>Valor liberado</th><th>Ação</th></tr>`;
     faixa.parcelas.forEach(p => {
       const valor = parcelaMaxima / coeficientes[p];
       if (valor >= faixa.valorMin && valor <= faixa.valorMax) {
-        html += <tr><td>${p}x</td><td>R$ ${valor.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valor}, ${p}, ${parcelaMaxima})'>Escolher</button></td></tr>;
+        html += `<tr><td>${p}x</td><td>R$ ${valor.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valor}, ${p}, ${parcelaMaxima})'>Escolher</button></td></tr>`;
       }
     });
-    html += </table>;
+    html += `</table>`;
   } else {
     if (valorContrato < faixa.valorMin || valorContrato > faixa.valorMax) {
-      resultado.innerHTML = <p style="color:red">O valor do contrato deve estar entre R$ ${faixa.valorMin.toFixed(2)} e R$ ${faixa.valorMax.toFixed(2)} para esse tempo de carteira.</p>;
+      resultado.innerHTML = `<p style="color:red">O valor do contrato deve estar entre R$ ${faixa.valorMin.toFixed(2)} e R$ ${faixa.valorMax.toFixed(2)} para esse tempo de carteira.</p>`;
       return;
     }
-    html += <p><strong>Valor contratado:</strong> R$ ${valorContrato.toFixed(2)}</p>;
-    html += <table><tr><th>Parcelas</th><th>Valor da Parcela</th><th>Ação</th></tr>;
+    html += `<p><strong>Valor contratado:</strong> R$ ${valorContrato.toFixed(2)}</p>`;
+    html += `<table><tr><th>Parcelas</th><th>Valor da Parcela</th><th>Ação</th></tr>`;
     let algumaValida = false;
     faixa.parcelas.forEach(p => {
       const parcela = valorContrato * coeficientes[p];
       if (parcela <= margem / 2) {
-        html += <tr><td>${p}x</td><td>R$ ${parcela.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valorContrato}, ${p}, ${parcela})'>Escolher</button></td></tr>;
+        html += `<tr><td>${p}x</td><td>R$ ${parcela.toFixed(2)}</td><td><button onclick='abrirFormularioProposta(${valorContrato}, ${p}, ${parcela})'>Escolher</button></td></tr>`;
         algumaValida = true;
       }
     });
-    html += </table>;
+    html += `</table>`;
     if (!algumaValida) {
-      resultado.innerHTML = <p style='color:red'>Nenhuma opção disponível: o valor da parcela excede o limite de R$ ${(margem / 2).toFixed(2)} permitido.</p>;
+      resultado.innerHTML = `<p style='color:red'>Nenhuma opção disponível: o valor da parcela excede o limite de R$ ${(margem / 2).toFixed(2)} permitido.</p>`;
       return;
     }
   }
@@ -300,11 +300,11 @@ function simular() {
   <option value="037">037 - Banco do Estado do Pará S.A.</option>
   <option value="041">041 - Banco do Estado do Rio Grande do Sul S.A.</option>
   <option value="047">047 - Banco do Estado de Sergipe S.A.</option>
-  <option value="009">069 - Banco Crefisa</option>
+  <option value="009">009 - Banco Crefisa</option>
   <option value="070">070 - BRB - Crédito, Financiamento e Investimento S.A.</option>
   <option value="077">077 - Banco Inter S.A</option>
   <option value="085">086 - COOPERATIVA CENTRAL DE CREDITO - AILOS</option>
-  <option value="031">090 - Central de Cooparativas da Economia e Crédito Mútuo</option>
+  <option value="031">031 - Central de Cooparativas da Economia e Crédito Mútuo</option>
   <option value="091">091 - Cooparativa Canual de Crédito Noroeste Brasileiro</option>
   <option value="104">104 - Caixa Econômica Federal</option>
   <option value="121">121 - Banco Agibank S.A</option>
