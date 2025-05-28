@@ -169,8 +169,8 @@ function simular() {
 
   const inicio = new Date(dataInicio);
   const meses = (hoje.getFullYear() - inicio.getFullYear()) * 12 + hoje.getMonth() - inicio.getMonth();
-  if (meses < 13) {
-    resultado.innerHTML = '<p style="color:red">É necessário pelo menos 13 meses de carteira assinada.</p>';
+  if (meses < 9) {
+    resultado.innerHTML = '<p style="color:red">É necessário pelo menos 9 meses de carteira assinada.</p>';
     return;
   }
 
